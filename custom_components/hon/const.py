@@ -27,6 +27,7 @@ APPLIANCES: dict[str, str] = {
     "AC": "Air Conditioner",
     "AP": "Air Purifier",
     "AS": "Air Scanner",
+    "AW": "Heat Pump",
     "DW": "Dish Washer",
     "FRE": "Freezer",
     "HO": "Hood",
@@ -294,3 +295,10 @@ AC_POSITION_VERTICAL = {
     7: "position_5",
     8: "swing",
 }
+
+SENSOR_ATTRIBUTES: list[str] = [
+    "machMode",
+    "errors",
+    "tempWaterOut",  # Wichtig für das MVP
+    "onOffStatus",   # Wichtig, um zu sehen ob die WP an ist
+]

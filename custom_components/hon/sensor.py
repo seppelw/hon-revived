@@ -812,6 +812,21 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             key="errors", name="Error", icon="mdi:math-log", translation_key="errors"
         ),
     ),
+    "AW": (
+        HonSensorEntityDescription(
+            key="tempWaterOut",
+            name="Water Outlet Temperature",
+            icon="mdi:thermometer-plus",
+            state_class=SensorStateClass.MEASUREMENT,
+            device_class=SensorDeviceClass.TEMPERATURE,
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonSensorEntityDescription(
+            key="onOffStatus",
+            name="Power Status",
+            icon="mdi:power",
+        ),
+    ),
 }
 SENSORS["WD"] = unique_entities(SENSORS["WM"], SENSORS["TD"])
 
@@ -853,6 +868,13 @@ class HonSensorEntity(HonEntity, SensorEntity):
             value = str(get_readable(self.entity_description, value))
         if not value and self.entity_description.state_class is not None:
             self._attr_native_value = 0
+        if self.entity_description.state_class is not None:
+            try:
+                if value is not None and value != "":
+                    value = float(value)
+            except (ValueError, TypeError):
+                pass
+        
         self._attr_native_value = value
         if update:
             self.schedule_update_ha_state()
