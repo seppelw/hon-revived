@@ -1,6 +1,45 @@
 {
     "entity": {
         "sensor": {
+            "outdoor_temperature": {
+                "name": "Außentemperatur"
+            },
+            "dhw_temperature": {
+                "name": "Warmwassertemperatur"
+            },
+            "target_temperature_dhw": {
+                "name": "Warmwasser Zieltemperatur"
+            },
+            "water_temperature_z1": {
+                "name": "Wassertemperatur Zone 1"
+            },
+            "water_temperature_z2": {
+                "name": "Wassertemperatur Zone 2"
+            },
+            "target_temperature_z1": {
+                "name": "Zieltemperatur Zone 1"
+            },
+            "target_temperature_z2": {
+                "name": "Zieltemperatur Zone 2"
+            },
+            "water_temperature_out": {
+                "name": "Vorlauftemperatur"
+            },
+            "water_temperature_in": {
+                "name": "Rücklauftemperatur"
+            },
+            "compressor_frequency": {
+                "name": "Kompressorfrequenz"
+            },
+            "flow_rate": {
+                "name": "Durchflussmenge"
+            },
+            "power_status": {
+                "name": "Betriebsstatus"
+            },
+            "working_mode": {
+                "name": "Arbeitsmodus"
+            },
             "washing_modes": {
                 "state": {
                     "ready": "Bereit",
@@ -933,6 +972,7 @@
                 "name": "Grad der Luftfeuchtigkeit"
             }
         },
+    
         "select": {
             "dry_levels": {
                 "state": {
@@ -2015,6 +2055,36 @@
             },
             "filter_replacement": {
                 "name": "Filteraustausch"
+            },
+            "power_status": {
+                "name": "Betriebsstatus"
+            },
+            "heating_mode": {
+                "name": "Heizbetrieb"
+            },
+            "dhw_mode": {
+                "name": "Warmwasserbetrieb"
+            },
+            "quiet_mode": {
+                "name": "Flüstermodus"
+            },
+            "eco_mode": {
+                "name": "Eco-Modus"
+            },
+            "dhw_priority": {
+                "name": "Warmwasser-Priorität"
+            },
+            "boiler_status": {
+                "name": "Hilfskessel Status"
+            },
+            "heater1_status": {
+                "name": "Heizstab 1 Status"
+            },
+            "heater2_status": {
+                "name": "Heizstab 2 Status"
+            },
+            "sterilization": {
+                "name": "Legionellenschutz"
             }
         },
         "button": {
