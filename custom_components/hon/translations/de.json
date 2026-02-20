@@ -972,7 +972,6 @@
                 "name": "Grad der Luftfeuchtigkeit"
             }
         },
-    
         "select": {
             "dry_levels": {
                 "state": {
@@ -1742,6 +1741,19 @@
                 },
                 "name": "Programm"
             },
+            "programs_aw": {
+                "name": "Modus",
+                "state": {
+                    "auto": "Auto",
+                    "auto_dhw": "Auto + Warmwasser",
+                    "cool": "Kühlen",
+                    "cool_dhw": "Kühlen + Warmwasser",
+                    "dhw": "Nur Warmwasser",
+                    "heat": "Heizen",
+                    "heat_dhw": "Heizen + Warmwasser",
+                    "iot_simple_start": "Smart Start"
+                }
+            },
             "dry_time": {
                 "name": "Trocknungsdauer"
             },
@@ -1859,6 +1871,9 @@
             }
         },
         "switch": {
+            "power_switch": { "name": "Hauptschalter" },
+            "quiet_mode": { "name": "Flüstermodus" },
+            "fast_dhw": { "name": "Schnelles Warmwasser" },
             "anti_crease": {
                 "name": "Knitterschutz"
             },
@@ -1978,6 +1993,9 @@
             }
         },
         "binary_sensor": {
+            "holiday_mode": {
+                "name": "Ferienmodus"
+            },
             "door_lock": {
                 "name": "Türsperre"
             },
@@ -2034,9 +2052,6 @@
             },
             "buzzer": {
                 "name": "Signalton zum Programmende"
-            },
-            "holiday_mode": {
-                "name": "Holiday-Modus"
             },
             "auto_set": {
                 "name": "Auto-Set"
