@@ -35,7 +35,42 @@ class HonConfigSwitchEntityDescription(SwitchEntityDescription):
     entity_category: EntityCategory = EntityCategory.CONFIG
 
 
+# --- NEU: Für AW-Wärmepumpe (attributbasierte Schalter ohne startProgram-Settings) ---
+@dataclass(frozen=True, kw_only=True)
+class HonDeviceAttributeSwitchEntityDescription(SwitchEntityDescription):
+    """Switch controlled via device attributes and settings/startProgram commands."""
+    turn_on_value: str = "1"
+    turn_off_value: str = "0"
+
+
 SWITCHES: dict[str, tuple[SwitchEntityDescription, ...]] = {
+    # --- NEU: Wärmepumpe ---
+    "AW": (
+        HonDeviceAttributeSwitchEntityDescription(
+            key="onOffStatus",
+            name="Hauptschalter",
+            icon="mdi:power",
+            translation_key="power_switch",
+        ),
+        HonDeviceAttributeSwitchEntityDescription(
+            key="quietMode1",
+            name="Flüstermodus",
+            icon="mdi:volume-mute",
+            translation_key="quiet_mode",
+        ),
+        HonDeviceAttributeSwitchEntityDescription(
+            key="ecoMode",
+            name="Eco-Modus",
+            icon="mdi:leaf",
+            translation_key="eco_mode",
+        ),
+        HonDeviceAttributeSwitchEntityDescription(
+            key="fastDhw",
+            name="Schnelles Warmwasser",
+            icon="mdi:water-boost",
+            translation_key="fast_dhw",
+        ),
+    ),
     "WM": (
         HonControlSwitchEntityDescription(
             key="active",
@@ -406,10 +441,16 @@ async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
     entities = []
-    entity: HonConfigSwitchEntity | HonControlSwitchEntity | HonSwitchEntity
+    entity: HonConfigSwitchEntity | HonControlSwitchEntity | HonSwitchEntity | HonDeviceAttributeSwitchEntity
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
         for description in SWITCHES.get(device.appliance_type, []):
-            if isinstance(description, HonConfigSwitchEntityDescription):
+            if isinstance(description, HonDeviceAttributeSwitchEntityDescription):
+                # NEU: AW-Schalter – Key direkt im Device-Attribut vorhanden
+                if device.get(description.key) is not None:
+                    entity = HonDeviceAttributeSwitchEntity(hass, entry, device, description)
+                else:
+                    continue
+            elif isinstance(description, HonConfigSwitchEntityDescription):
                 if description.key not in device.available_settings:
                     continue
                 entity = HonConfigSwitchEntity(hass, entry, device, description)
@@ -549,6 +590,56 @@ class HonConfigSwitchEntity(HonEntity, SwitchEntity):
         if type(setting) == HonParameter:
             return
         setting.value = setting.min if isinstance(setting, HonParameterRange) else "0"
+        self.coordinator.async_set_updated_data({})
+        self.async_write_ha_state()
+
+    @callback
+    def _handle_coordinator_update(self, update: bool = True) -> None:
+        self._attr_is_on = self.is_on
+        if update:
+            self.schedule_update_ha_state()
+
+
+# --- NEU: AW-Wärmepumpe ---
+class HonDeviceAttributeSwitchEntity(HonEntity, SwitchEntity):
+    """Switch for heat pump attributes (AW) controlled via startProgram/stopProgram/settings."""
+
+    entity_description: HonDeviceAttributeSwitchEntityDescription
+
+    @property
+    def is_on(self) -> bool:
+        val = self._device.get(self.entity_description.key)
+        if val is None:
+            return False
+        return str(val) == self.entity_description.turn_on_value
+
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        if self.entity_description.key == "onOffStatus":
+            # PROGRAMS.AW.IOT_SIMPLE_START sendet {"onOffStatus": "1"} als fixed param
+            # – entspricht exakt dem Android-App-Verhalten (command_history)
+            if "startProgram.program" in self._device.settings:
+                self._device.settings["startProgram.program"].value = "iot_simple_start"
+            await self._device.commands["startProgram"].send()
+        else:
+            if self.entity_description.key in self._device.settings:
+                self._device.settings[self.entity_description.key].value = (
+                    self.entity_description.turn_on_value
+                )
+            await self._device.commands["settings"].send()
+        self.coordinator.async_set_updated_data({})
+        self.async_write_ha_state()
+
+
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        if self.entity_description.key == "onOffStatus":
+            # Confirmed via command_history: stopProgram with {"onOffStatus": "0"}
+            await self._device.commands["stopProgram"].send()
+        else:
+            if self.entity_description.key in self._device.settings:
+                self._device.settings[self.entity_description.key].value = (
+                    self.entity_description.turn_off_value
+                )
+            await self._device.commands["settings"].send()
         self.coordinator.async_set_updated_data({})
         self.async_write_ha_state()
 

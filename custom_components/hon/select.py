@@ -205,6 +205,15 @@ SELECTS: dict[str, tuple[SelectEntityDescription, ...]] = {
             translation_key="temperature",
         ),
     ),
+    # --- WÄRMEPUMPE (AW) ---
+    "AW": (
+        HonSelectEntityDescription(
+            key="startProgram.program",
+            name="Betriebsmodus",
+            icon="mdi:state-machine",
+            translation_key="programs_aw",
+        ),
+    ),
 }
 
 SELECTS["WD"] = unique_entities(SELECTS["WM"], SELECTS["TD"])
