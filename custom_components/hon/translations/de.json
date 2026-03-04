@@ -2161,7 +2161,18 @@
             },
             "my_zone_temp_sel": {
                 "name": "Zieltemperatur My Zone"
+            },
+            {
+            "target_temp_dhw": {
+                "name": "Zieltemperatur Warmwasser"
+            },
+            "target_temp_z1": {
+                "name": "Zieltemperatur Zone 1"
+            },
+            "target_temp_z2": {
+                "name": "Zieltemperatur Zone 2"
             }
+        },
         },
         "climate": {
             "air_conditioner": {

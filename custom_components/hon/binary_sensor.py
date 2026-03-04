@@ -21,8 +21,9 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class HonBinarySensorEntityDescription(BinarySensorEntityDescription):
+    """Description for hOn binary sensors."""
     on_value: str | float = ""
-    # Erweiterung für mehrere mögliche ON-Werte (z.B. für workingMode)
+    # Support multiple 'ON' values for specific mode sensors
     on_values: tuple[str, ...] = ()
 
 
@@ -238,7 +239,7 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             key="heatingStatus",
             name="Heating Mode",
             icon="mdi:radiator",
-            on_values=("1", "2"),  # 1=Heat, 2=DHW+Heat (aus workingMode)
+            on_values=("2", "8"),  # machMode 2=Heat, 8=Auto (Heat+DHW)
             device_class=BinarySensorDeviceClass.RUNNING,
             translation_key="heating_mode",
         ),
@@ -246,9 +247,17 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             key="dhwStatus",
             name="DHW Mode",
             icon="mdi:water-boiler",
-            on_values=("2", "3"),  # 3=DHW, 2=DHW+Heat (aus workingMode)
+            on_values=("3", "8"),  # machMode 3=DHW, 8=Auto (Heat+DHW)
             device_class=BinarySensorDeviceClass.RUNNING,
             translation_key="dhw_mode",
+        ),
+        HonBinarySensorEntityDescription(
+            key="fastDhwStatus",
+            name="Fast DHW",
+            icon="mdi:water-boost",
+            device_class=BinarySensorDeviceClass.RUNNING,
+            on_value="1",
+            translation_key="fast_dhw",
         ),
         HonBinarySensorEntityDescription(
             key="quietModeStatus",
@@ -265,6 +274,14 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             device_class=BinarySensorDeviceClass.RUNNING,
             on_value="1",
             translation_key="eco_mode",
+        ),
+        HonBinarySensorEntityDescription(
+            key="sgReady",
+            name="Smart Grid Ready",
+            icon="mdi:solar-power",
+            entity_category=EntityCategory.DIAGNOSTIC,
+            on_value="1",
+            translation_key="sg_ready",
         ),
         HonBinarySensorEntityDescription(
             key="dhwPriorityStatus",
@@ -332,12 +349,13 @@ BINARY_SENSORS["WD"] = unique_entities(BINARY_SENSORS["WM"], BINARY_SENSORS["TD"
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
+    """Set up the hOn binary sensors."""
     entities = []
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
         for description in BINARY_SENSORS.get(device.appliance_type, []):
-            # Check if key exists or if it is a special mode sensor
+            # Check if key exists or if it is a special mode sensor relying on machMode
             if (device.get(description.key) is not None) or \
-               (description.key in ["heatingStatus", "dhwStatus"] and device.get("workingMode") is not None):
+               (description.key in ["heatingStatus", "dhwStatus"] and device.get("machMode") is not None):
                 
                 if description.key in ["heatingStatus", "dhwStatus"]:
                     entities.append(HonBinaryModeSensorEntity(hass, entry, device, description))
@@ -348,6 +366,7 @@ async def async_setup_entry(
 
 
 class HonBinarySensorEntity(HonEntity, BinarySensorEntity):
+    """Representation of a standard hOn binary sensor."""
     entity_description: HonBinarySensorEntityDescription
 
     def __init__(self, hass, entry, device, description) -> None:
@@ -357,21 +376,19 @@ class HonBinarySensorEntity(HonEntity, BinarySensorEntity):
 
     @property
     def is_on(self) -> bool:
+        """Return true if the binary sensor is on."""
         attr = self._device.get(self.entity_description.key, None)
         value = attr.value if hasattr(attr, "value") else attr
         
         if value is None:
             return False
             
-        # Robust comparison: handle string/int/bool
         str_val = str(value).lower()
         target_val = str(self.entity_description.on_value).lower()
         
-        # Standard check
         if str_val == target_val:
             return True
             
-        # Fallback for generic boolean values
         if str_val in ["true", "on", "yes", "1"] and target_val in ["1", "true"]:
             return True
             
@@ -379,23 +396,25 @@ class HonBinarySensorEntity(HonEntity, BinarySensorEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        attr = self._device.get(self.entity_description.key, None)
-        value = attr.value if hasattr(attr, "value") else attr
-        
-        # Force state update for UI
+        """Handle updated data from the coordinator."""
         if update:
             self.schedule_update_ha_state()
 
 
 class HonBinaryModeSensorEntity(HonBinarySensorEntity):
-    """Spezial-Sensor der auf workingMode reagiert."""
+    """Special binary sensor that reacts to machMode (e.g. for Heating/DHW status)."""
     
     @property
     def is_on(self) -> bool:
-        mode = self._device.get("workingMode")
+        """Determine state based on machMode and onOffStatus."""
+        # Ensure modes report False if the entire machine is powered off
+        if str(self._device.get("onOffStatus", "1")) == "0":
+            return False
+            
+        mode = self._device.get("machMode")
         if mode is None:
             return False
             
         str_mode = str(mode)
-        # Check against list of valid 'ON' values (e.g. "1" and "2" for heating)
+        # Check against list of valid 'ON' values (e.g. "2" and "8" for heating)
         return any(str_mode == str(val) for val in self.entity_description.on_values)

@@ -201,6 +201,29 @@ NUMBERS: dict[str, tuple[NumberEntityDescription, ...]] = {
             translation_key="pollen_level",
         ),
     ),
+    "AW": (
+        HonNumberEntityDescription(
+            key="settings.tempSelDhw",
+            name="Target Temperature DHW",
+            icon="mdi:water-boiler",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            translation_key="target_temp_dhw",
+        ),
+        HonNumberEntityDescription(
+            key="settings.tempSelZ1",
+            name="Target Temperature Zone 1",
+            icon="mdi:thermometer",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            translation_key="target_temp_z1",
+        ),
+        HonNumberEntityDescription(
+            key="settings.tempSelZ2",
+            name="Target Temperature Zone 2",
+            icon="mdi:thermometer",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            translation_key="target_temp_z2",
+        ),
+    ),
 }
 
 NUMBERS["WD"] = unique_entities(NUMBERS["WM"], NUMBERS["TD"])
@@ -325,3 +348,4 @@ class HonConfigNumberEntity(HonEntity, NumberEntity):
         self._attr_native_value = self.native_value
         if update:
             self.schedule_update_ha_state()
+            
