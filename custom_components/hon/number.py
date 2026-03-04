@@ -275,7 +275,10 @@ class HonNumberEntity(HonEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         setting = self._device.settings[self.entity_description.key]
         if isinstance(setting, HonParameterRange):
-            setting.value = value
+            # Formatiere den Wert korrekt als Integer oder Float um API-Abstürze zu verhindern
+            step = float(setting.step)
+            setting.value = int(value) if step % 1 == 0 else float(value)
+            
         command = self.entity_description.key.split(".")[0]
         await self._device.commands[command].send()
         if command != "settings":
@@ -330,7 +333,9 @@ class HonConfigNumberEntity(HonEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         setting = self._device.settings[self.entity_description.key]
         if isinstance(setting, HonParameterRange):
-            setting.value = value
+            # Formatiere den Wert korrekt als Integer oder Float
+            step = float(setting.step)
+            setting.value = int(value) if step % 1 == 0 else float(value)
         self.coordinator.async_set_updated_data({})
 
     @property
@@ -348,4 +353,3 @@ class HonConfigNumberEntity(HonEntity, NumberEntity):
         self._attr_native_value = self.native_value
         if update:
             self.schedule_update_ha_state()
-            
