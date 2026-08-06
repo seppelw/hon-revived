@@ -223,6 +223,72 @@ NUMBERS: dict[str, tuple[NumberEntityDescription, ...]] = {
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             translation_key="target_temp_z2",
         ),
+        HonNumberEntityDescription(
+            key="settings.tempSelHolidayModeZ1",
+            name="Holiday Target Temperature Zone 1",
+            icon="mdi:island",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonNumberEntityDescription(
+            key="settings.tempSelHolidayModeZ2",
+            name="Holiday Target Temperature Zone 2",
+            icon="mdi:island",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonNumberEntityDescription(
+            key="settings.tempSelEcoMode",
+            name="Eco Mode Target Temperature",
+            icon="mdi:leaf",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonNumberEntityDescription(
+            key="settings.tempSelPool",
+            name="Pool Target Temperature",
+            icon="mdi:pool",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonNumberEntityDescription(
+            key="settings.tempSelSterilizationMode",
+            name="Sterilization Target Temperature",
+            icon="mdi:shield-check",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonConfigNumberEntityDescription(
+            key="settings.tempDeltaDhw",
+            name="DHW Delta Temperature",
+            icon="mdi:thermometer-minus",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ),
+        HonConfigNumberEntityDescription(
+            key="settings.turboModeTime",
+            name="Turbo Mode Duration",
+            icon="mdi:timer",
+            native_unit_of_measurement=UnitOfTime.MINUTES,
+        ),
+        *[HonConfigNumberEntityDescription(
+            key=f"settings.highOutdoorTempCurve{i}",
+            name=f"High Outdoor Temp Curve {i}",
+            icon="mdi:chart-bell-curve-cumulative",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ) for i in range(1, 5)],
+        *[HonConfigNumberEntityDescription(
+            key=f"settings.lowOutdoorTempCurve{i}",
+            name=f"Low Outdoor Temp Curve {i}",
+            icon="mdi:chart-bell-curve-cumulative",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ) for i in range(1, 5)],
+        *[HonConfigNumberEntityDescription(
+            key=f"settings.highWaterTempCurve{i}",
+            name=f"High Water Temp Curve {i}",
+            icon="mdi:chart-bell-curve-cumulative",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ) for i in range(1, 5)],
+        *[HonConfigNumberEntityDescription(
+            key=f"settings.lowWaterTempCurve{i}",
+            name=f"Low Water Temp Curve {i}",
+            icon="mdi:chart-bell-curve-cumulative",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        ) for i in range(1, 5)],
     ),
 }
 

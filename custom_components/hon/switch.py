@@ -85,6 +85,60 @@ SWITCHES: dict[str, tuple[SwitchEntityDescription, ...]] = {
             turn_off_value="0",
             translation_key="fast_dhw",
         ),
+        HonDeviceAttributeSwitchEntityDescription(
+            key="holidayMode",
+            read_key="holidayActState",
+            name="Holiday Mode",
+            icon="mdi:island",
+            turn_on_value="1",
+            turn_off_value="0",
+        ),
+        HonDeviceAttributeSwitchEntityDescription(
+            key="turboMode",
+            read_key="turboModeStatus",
+            name="Turbo Mode",
+            icon="mdi:run-fast",
+            turn_on_value="1",
+            turn_off_value="0",
+        ),
+        HonDeviceAttributeSwitchEntityDescription(
+            key="sterilizationMode",
+            read_key="sterilizationModeStatus",
+            name="Sterilization Mode",
+            icon="mdi:shield-check",
+            turn_on_value="1",
+            turn_off_value="0",
+        ),
+        HonConfigSwitchEntityDescription(
+            key="settings.allowCoolStatus",
+            name="Allow Cooling",
+            icon="mdi:snowflake",
+        ),
+        HonConfigSwitchEntityDescription(
+            key="settings.allowCoolStatusZ2",
+            name="Allow Cooling Zone 2",
+            icon="mdi:snowflake",
+        ),
+        HonConfigSwitchEntityDescription(
+            key="settings.bufferTankStatus",
+            name="Buffer Tank Active",
+            icon="mdi:water-boiler",
+        ),
+        HonConfigSwitchEntityDescription(
+            key="settings.dhwTankHeaterStatus",
+            name="DHW Tank Heater Active",
+            icon="mdi:heating-coil",
+        ),
+        HonConfigSwitchEntityDescription(
+            key="settings.auxiliaryHeatSource",
+            name="Auxiliary Heat Source Active",
+            icon="mdi:heating-coil",
+        ),
+        HonConfigSwitchEntityDescription(
+            key="settings.dhwPriorityStatus",
+            name="DHW Priority",
+            icon="mdi:water-plus",
+        ),
     ),
     "WM": (
         HonControlSwitchEntityDescription(

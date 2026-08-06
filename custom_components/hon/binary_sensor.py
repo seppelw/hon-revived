@@ -229,13 +229,6 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
     # --- HEAT PUMP (AW) SECTION ---
     "AW": (
         HonBinarySensorEntityDescription(
-            key="onOffStatus",
-            name="Power Status",
-            device_class=BinarySensorDeviceClass.POWER,
-            on_value="1",
-            translation_key="power_status",
-        ),
-        HonBinarySensorEntityDescription(
             key="heatingStatus",
             name="Heating Mode",
             icon="mdi:radiator",
@@ -250,30 +243,6 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             on_values=("3", "8"),  # machMode 3=DHW, 8=Auto (Heat+DHW)
             device_class=BinarySensorDeviceClass.RUNNING,
             translation_key="dhw_mode",
-        ),
-        HonBinarySensorEntityDescription(
-            key="fastDhwStatus",
-            name="Fast DHW",
-            icon="mdi:water-boost",
-            device_class=BinarySensorDeviceClass.RUNNING,
-            on_value="1",
-            translation_key="fast_dhw",
-        ),
-        HonBinarySensorEntityDescription(
-            key="quietModeStatus",
-            name="Quiet Mode",
-            icon="mdi:volume-mute",
-            device_class=BinarySensorDeviceClass.RUNNING,
-            on_value="1",
-            translation_key="quiet_mode",
-        ),
-        HonBinarySensorEntityDescription(
-            key="ecoModeStatus",
-            name="Eco Mode",
-            icon="mdi:leaf",
-            device_class=BinarySensorDeviceClass.RUNNING,
-            on_value="1",
-            translation_key="eco_mode",
         ),
         HonBinarySensorEntityDescription(
             key="sgReady",

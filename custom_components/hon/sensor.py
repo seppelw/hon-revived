@@ -833,15 +833,6 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             translation_key="dhw_temperature",
         ),
         HonSensorEntityDescription(
-            key="tempSelDhw",
-            name="Target DHW Temperature",
-            icon="mdi:water-boiler-alert",
-            state_class=SensorStateClass.MEASUREMENT,
-            device_class=SensorDeviceClass.TEMPERATURE,
-            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-            translation_key="target_temperature_dhw",
-        ),
-        HonSensorEntityDescription(
             key="tempZ1",
             name="Water Temperature Zone 1",
             icon="mdi:thermometer",
@@ -851,15 +842,6 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             translation_key="water_temperature_z1",
         ),
         HonSensorEntityDescription(
-            key="tempSelZ1",
-            name="Target Temperature Zone 1",
-            icon="mdi:thermometer-check",
-            state_class=SensorStateClass.MEASUREMENT,
-            device_class=SensorDeviceClass.TEMPERATURE,
-            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-            translation_key="target_temperature_z1",
-        ),
-        HonSensorEntityDescription(
             key="tempZ2",
             name="Water Temperature Zone 2",
             icon="mdi:thermometer",
@@ -867,15 +849,6 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             device_class=SensorDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             translation_key="water_temperature_z2",
-        ),
-        HonSensorEntityDescription(
-            key="tempSelZ2",
-            name="Target Temperature Zone 2",
-            icon="mdi:thermometer-check",
-            state_class=SensorStateClass.MEASUREMENT,
-            device_class=SensorDeviceClass.TEMPERATURE,
-            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
-            translation_key="target_temperature_z2",
         ),
         HonSensorEntityDescription(
             key="tempWaterOut",
@@ -928,24 +901,11 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             translation_key="flow_rate",
         ),
         HonSensorEntityDescription(
-            key="workingMode",
-            name="Working Mode",
-            icon="mdi:state-machine",
-            entity_category=EntityCategory.DIAGNOSTIC,
-            translation_key="working_mode",
-        ),
-        HonSensorEntityDescription(
             key="errors", 
             name="Errors", 
             icon="mdi:alert-circle", 
             entity_category=EntityCategory.DIAGNOSTIC,
             translation_key="errors",
-        ),
-        HonSensorEntityDescription(
-            key="onOffStatus",
-            name="Power Status",
-            icon="mdi:power",
-            translation_key="power_status",
         ),
     ),
 }
@@ -1001,7 +961,11 @@ class HonSensorEntity(HonEntity, SensorEntity):
         if not value and self.entity_description.state_class is not None:
             self._attr_native_value = 0
         else:
-            self._attr_native_value = value
+            # -30.0 is often returned by Haier heat pumps for disconnected thermistors (e.g. Zone 2)
+            if self.entity_description.device_class == SensorDeviceClass.TEMPERATURE and value in (-30, -30.0, "-30", "-30.0"):
+                self._attr_native_value = None
+            else:
+                self._attr_native_value = value
             
         if update:
             self.schedule_update_ha_state()
